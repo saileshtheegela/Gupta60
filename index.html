@@ -627,44 +627,78 @@ Personal traditions or surprises:</div>
     }
 
     async function uploadPhotos() {
-  if (!supabase) return;
+  if (!supabase) {
+    alert('Supabase not initialized');
+    return;
+  }
+  
   const input = document.getElementById('photoInput');
   const files = input.files;
+  
   if (!files.length) return;
-
+  
+  console.log('Starting upload for', files.length, 'files');
+  
   for (let file of files) {
     try {
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name}`;
+      // Create unique filename
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      const fileName = `photo_${timestamp}_${random}.jpg`;
       
-      const { data, error } = await supabase.storage.from('photos').upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      console.log('Uploading:', fileName);
+      
+      // Upload file
+      const { data, error } = await supabase.storage
+        .from('photos')
+        .upload(fileName, file, {
+          upsert: false
+        });
       
       if (error) {
-        console.error('❌ Upload error details:', error);
-        throw error;
+        console.error('Upload error:', error);
+        alert('❌ Upload error: ' + error.message);
+        continue;
       }
-
-      const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(fileName);
       
-      const { insertError } = await supabase.from('photos').insert([{ 
-        event_id: 'celebration', 
-        photo_url: publicUrl, 
-        file_name: fileName 
-      }]);
+      // Get public URL
+      const { data: publicData } = supabase.storage
+        .from('photos')
+        .getPublicUrl(fileName);
       
-      if (insertError) throw insertError;
+      const photoUrl = publicData.publicUrl;
+      console.log('Photo URL:', photoUrl);
+      
+      // Save to database
+      const { data: insertData, error: insertError } = await supabase
+        .from('photos')
+        .insert([{
+          event_id: 'celebration',
+          photo_url: photoUrl,
+          file_name: fileName
+        }]);
+      
+      if (insertError) {
+        console.error('Database error:', insertError);
+        alert('❌ Save error: ' + insertError.message);
+        continue;
+      }
       
       console.log('✅ Photo uploaded:', fileName);
+      alert('✅ Photo uploaded successfully!');
+      
     } catch (error) {
-      console.error('❌ Error uploading photo:', error);
-      alert('Upload failed: ' + error.message);
+      console.error('Catch error:', error);
+      alert('❌ Error: ' + error.message);
     }
   }
-
+  
+  // Clear input and reload
   input.value = '';
-  loadPhotos();
+  setTimeout(() => {
+    console.log('Reloading photos...');
+    loadPhotos();
+  }, 1000);
 }
 
     async function deletePhoto(id) {
