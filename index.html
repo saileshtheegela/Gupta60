@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Konijeti Gupta | 60th Birthday Dashboard</title>
+  <style>
+    :root { --wine:#681f35; --rose:#b8757d; --blush:#faeeee; --gold:#bd8b33; --ink:#2d2527; --paper:#fffdfa; --line:#e8d9d2; }
+    * { box-sizing:border-box } body { margin:0; background:#f5efeb; color:var(--ink); font:14px/1.45 Arial,sans-serif; }
+    .page { width:min(1180px,calc(100% - 32px)); margin:24px auto; background:var(--paper); padding:42px; box-shadow:0 8px 30px #5a334020; position:relative; overflow:hidden; }
+    .page:before { content:''; position:absolute; inset:0; background:url('kvg-60th-logo.jpeg') center 53%/70% auto no-repeat; opacity:.18; mix-blend-mode:multiply; pointer-events:none; }
+    .page > header, .page > section, .page > footer { position:relative; z-index:1; }
+    header { display:flex; justify-content:space-between; gap:24px; align-items:end; border-bottom:2px solid var(--gold); padding-bottom:20px; }
+    h1,h2,h3,p { margin:0 } h1 { font:700 42px/1 Georgia,serif; color:var(--wine); letter-spacing:-1px; } .eyebrow { color:var(--gold); font-weight:bold; letter-spacing:2px; text-transform:uppercase; margin-bottom:8px; }
+    .date { text-align:right; font:600 17px Georgia,serif; color:var(--wine); } .date small { display:block; font:13px Arial,sans-serif; color:#786e6e; margin-top:4px; }
+    .grid { display:grid; grid-template-columns:1.18fr .82fr; gap:22px; margin-top:24px; } .full { grid-column:1/-1 } .card { border:1px solid var(--line); border-radius:10px; padding:20px; background:rgb(255 255 255 / 88%); }
+    h2 { font:700 22px Georgia,serif; color:var(--wine); margin-bottom:14px; } h3 { font:700 14px Arial,sans-serif; color:var(--wine); letter-spacing:.3px; text-transform:uppercase; margin-bottom:8px; }
+    .hero { background:var(--blush); border:none; position:relative; overflow:hidden; } .hero:after { content:'60'; position:absolute; right:20px; bottom:-34px; color:#fff8; font:150px Georgia,serif; font-weight:bold; }
+    .editable { outline:none; border-bottom:1px dashed #c7ada5; min-width:30px; } [contenteditable]:focus { background:#fff5c8; border-radius:3px; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; position:relative; z-index:1; margin-top:17px; }.stat{background:#fff; padding:12px; border-radius:8px; border-left:4px solid var(--gold)}.stat b{display:block;font:22px Georgia,serif;color:var(--wine)}.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#716669}
+    table { border-collapse:collapse; width:100%; font-size:13px } th { color:var(--wine); text-align:left; border-bottom:2px solid var(--line); padding:7px 6px; font-size:11px; letter-spacing:.6px; text-transform:uppercase } td { padding:9px 6px; border-bottom:1px solid #f0e7e2; vertical-align:top } .day { color:var(--gold); font-weight:bold; white-space:nowrap; } .badge { display:inline-block; padding:2px 7px; border-radius:12px; background:var(--blush); color:var(--wine); font-size:11px; }
+    .check { list-style:none; padding:0; margin:0 }.check li { padding:7px 0; border-bottom:1px solid #f0e7e2 }.check li:before { content:'□'; color:var(--gold); font-size:18px; vertical-align:-1px; margin-right:8px; } .two { columns:2; column-gap:28px } .notes { min-height:110px; padding:10px; background:repeating-linear-gradient(#fff,#fff 28px,#eadfd9 29px); line-height:29px; }
+    footer { margin-top:25px; color:#897d7d; font-size:11px; text-align:center; } .hint { font-size:11px; color:#8b7e7c; margin-top:8px; }
+    @media(max-width:720px){.page{width:100%;margin:0;padding:24px}.grid{grid-template-columns:1fr}header{align-items:start;flex-direction:column}.date{text-align:left}h1{font-size:34px}.two{columns:1}}
+    @media print { body{background:#fff}.page{width:100%;margin:0;padding:26px;box-shadow:none}.card{break-inside:avoid} .hint{display:none} }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div><p class="eyebrow">Celebration planning dashboard</p><h1>Konijeti Gupta’s 60th</h1></div>
+      <p class="date">31 July – 2 August <small>Hyderabad, Telangana</small></p>
+    </header>
+
+    <section class="grid">
+      <article class="card hero">
+        <h2>Three days of celebration</h2>
+        <p contenteditable="true" class="editable">A joyful milestone celebration with family, friends, food, music and memorable moments.</p>
+        <div class="stats"><div class="stat"><b contenteditable="true">—</b><span>Guests expected</span></div><div class="stat"><b contenteditable="true">—</b><span>Budget (₹)</span></div><div class="stat"><b contenteditable="true">3</b><span>Celebration days</span></div></div>
+      </article>
+      <article class="card"><h2>Key contacts</h2><table><tr><td>Host / family lead</td><td contenteditable="true" class="editable">Add name & phone</td></tr><tr><td>Venue manager</td><td contenteditable="true" class="editable">Add contact</td></tr><tr><td>Decorator</td><td contenteditable="true" class="editable">Add contact</td></tr><tr><td>Photographer</td><td contenteditable="true" class="editable">Add contact</td></tr></table><p class="hint">Click underlined fields to type.</p></article>
+
+      <article class="card full"><h2>Celebration timeline</h2><table><thead><tr><th>Day</th><th>Function / theme</th><th>Time</th><th>Venue / setup</th><th>Owner</th><th>Status</th></tr></thead><tbody>
+        <tr><td class="day">Thu, 31 Jul</td><td contenteditable="true" class="editable">Welcome dinner / family evening</td><td contenteditable="true" class="editable">—</td><td contenteditable="true" class="editable">Hyderabad — confirm venue</td><td contenteditable="true" class="editable">—</td><td><span class="badge">To plan</span></td></tr>
+        <tr><td class="day">Fri, 1 Aug</td><td contenteditable="true" class="editable">Main 60th birthday celebration</td><td contenteditable="true" class="editable">—</td><td contenteditable="true" class="editable">Hyderabad — confirm venue</td><td contenteditable="true" class="editable">—</td><td><span class="badge">To plan</span></td></tr>
+        <tr><td class="day">Sat, 2 Aug</td><td contenteditable="true" class="editable">Brunch / thanksgiving gathering</td><td contenteditable="true" class="editable">—</td><td contenteditable="true" class="editable">Hyderabad — confirm venue</td><td contenteditable="true" class="editable">—</td><td><span class="badge">To plan</span></td></tr>
+      </tbody></table></article>
+
+      <article class="card"><h2>Priority checklist</h2><ul class="check two"><li>Confirm all three venues</li><li>Prepare guest list & invitations</li><li>Book catering / menu tasting</li><li>Book décor and flowers</li><li>Order 60th birthday cake</li><li>Arrange music / entertainment</li><li>Book photographer & videographer</li><li>Plan return gifts</li><li>Arrange transport & parking</li><li>Prepare speeches / video montage</li></ul></article>
+      <article class="card"><h2>Budget tracker</h2><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th></tr></thead><tbody><tr><td>Venue</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr><tr><td>Food & cake</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr><tr><td>Décor & flowers</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr><tr><td>Photography & gifts</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr></tbody></table></article>
+
+      <article class="card"><h2>Guest & hospitality notes</h2><div contenteditable="true" class="notes">VIP / elder guests:
+Outstation arrivals:
+Dietary requirements:
+Transport or accommodation:
+</div></article>
+      <article class="card"><h2>Day-of essentials</h2><ul class="check"><li>Final vendor confirmation calls</li><li>Printed run sheet and contact list</li><li>Cash / digital payment plan</li><li>Birthday cake, candles & knife</li><li>Welcome signage and guest book</li><li>Emergency kit / medicines / chargers</li></ul></article>
+      <article class="card full"><h2>Ideas, memories & special touches</h2><div contenteditable="true" class="notes">Favourite foods, songs and colours:
+People to include in the tribute or speeches:
+Photo / video montage material to collect:
+Personal traditions or surprises:
+</div></article>
+    </section>
+    <footer>Konijeti Gupta’s 60th birthday • Hyderabad • 31 July–2 August • Editable planner — open in a browser and print when ready.</footer>
+  </main>
+</body>
+</html>
