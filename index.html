@@ -303,13 +303,21 @@ Personal traditions or surprises:</div>
   </main>
 
   <script>
-    // Initialize Supabase
-    const SUPABASE_URL = 'https://auyhvsezdxjgonxwbwve.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_Q9se_J-MMSkPMxmGZGHRew_DANiB-XQ';
-    const { createClient } = window.supabase;
-    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+    let supabase;
+    
+    function initSupabase() {
+      const SUPABASE_URL = 'https://auyhvsezdxjgonxwbwve.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_Q9se_J-MMSkPMxmGZGHRew_DANiB-XQ';
+      
+      if (window.supabase && window.supabase.createClient) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        console.log('✅ Supabase initialized');
+      } else {
+        console.error('❌ Supabase library not loaded');
+        setTimeout(initSupabase, 500);
+      }
+    }
 
-    // Initialize checklist from localStorage
     function initChecklist() {
       const checklist = document.getElementById('checklist');
       const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
@@ -333,7 +341,6 @@ Personal traditions or surprises:</div>
       });
     }
 
-    // Add new checklist item
     function addCheckItem() {
       const input = document.getElementById('newCheckItem');
       const text = input.value.trim();
@@ -360,8 +367,9 @@ Personal traditions or surprises:</div>
       input.value = '';
     }
 
-    // Handle Enter key in input
     document.addEventListener('DOMContentLoaded', function() {
+      initSupabase();
+      
       const input = document.getElementById('newCheckItem');
       input.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -370,36 +378,39 @@ Personal traditions or surprises:</div>
       });
       
       initChecklist();
-      initContactLinks();
+      setTimeout(() => initContactLinks(), 1000);
     });
 
-    // Initialize contact links with phone number validation and Supabase
     function initContactLinks() {
+      if (!supabase) {
+        console.error('❌ Supabase not ready yet');
+        return;
+      }
+
       const nameFields = document.querySelectorAll('.contact-name');
       const phoneFields = document.querySelectorAll('.contact-phone');
       const callLinks = document.querySelectorAll('.contact-call');
       const whatsappLinks = document.querySelectorAll('.contact-whatsapp');
 
-      // Function to validate and format phone number
       function isValidPhone(phone) {
         const cleaned = phone.replace(/\D/g, '');
         return cleaned.length >= 10;
       }
 
-      // Function to format phone for display
       function formatPhone(phone) {
         return phone.replace(/\D/g, '');
       }
 
-      // Load data from Supabase
       async function loadFromSupabase() {
         try {
           const { data, error } = await supabase.from('contacts').select('*');
           
           if (error) {
-            console.error('Error loading contacts:', error);
+            console.error('❌ Error loading contacts:', error);
             return;
           }
+
+          console.log('✅ Contacts loaded:', data);
 
           if (data) {
             data.forEach(contact => {
@@ -416,11 +427,10 @@ Personal traditions or surprises:</div>
             updateLinks();
           }
         } catch (error) {
-          console.error('Error:', error);
+          console.error('❌ Error:', error);
         }
       }
 
-      // Save data to Supabase
       async function saveContactToSupabase(contact, name, phone) {
         try {
           const { error } = await supabase
@@ -429,14 +439,15 @@ Personal traditions or surprises:</div>
             .eq('contact_type', contact);
           
           if (error) {
-            console.error('Error saving contact:', error);
+            console.error('❌ Error saving contact:', error);
+          } else {
+            console.log('✅ Contact saved:', contact, name, phone);
           }
         } catch (error) {
-          console.error('Error:', error);
+          console.error('❌ Error:', error);
         }
       }
 
-      // Update link states based on phone number
       function updateLinks() {
         phoneFields.forEach(field => {
           const contact = field.dataset.contact;
@@ -448,7 +459,6 @@ Personal traditions or surprises:</div>
             const formattedPhone = formatPhone(phone);
             const countryCode = formattedPhone.startsWith('91') ? formattedPhone : '91' + formattedPhone;
             
-            // Enable call link
             callLink.classList.add('active');
             callLink.style.color = 'var(--gold)';
             callLink.style.cursor = 'pointer';
@@ -457,7 +467,6 @@ Personal traditions or surprises:</div>
               window.location.href = 'tel:+' + countryCode;
             };
 
-            // Enable WhatsApp link
             whatsappLink.classList.add('active');
             whatsappLink.style.color = 'var(--gold)';
             whatsappLink.style.cursor = 'pointer';
@@ -469,7 +478,6 @@ Personal traditions or surprises:</div>
               window.location.href = 'https://wa.me/' + countryCode + '?text=' + encoded;
             };
           } else {
-            // Disable links
             callLink.classList.remove('active');
             callLink.style.color = '#999';
             callLink.style.cursor = 'not-allowed';
@@ -483,7 +491,6 @@ Personal traditions or surprises:</div>
         });
       }
 
-      // Save name fields when edited
       nameFields.forEach(field => {
         field.addEventListener('blur', function() {
           const contact = this.dataset.contact;
@@ -496,7 +503,6 @@ Personal traditions or surprises:</div>
         });
       });
 
-      // Save phone fields when edited
       phoneFields.forEach(field => {
         field.addEventListener('blur', function() {
           const contact = this.dataset.contact;
@@ -511,7 +517,6 @@ Personal traditions or surprises:</div>
         field.addEventListener('input', updateLinks);
       });
 
-      // Load data from Supabase on page load
       loadFromSupabase();
     }
   </script>
