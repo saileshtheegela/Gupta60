@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Konijeti Gupta | 60th Birthday Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root { --wine:#681f35; --rose:#b8757d; --blush:#faeeee; --gold:#bd8b33; --ink:#2d2527; --paper:#fffdfa; --line:#e8d9d2; }
     * { box-sizing:border-box }
@@ -52,6 +53,9 @@
     .hint { font-size:11px; color:#8b7e7c; margin-top:8px; }
     .venue-link { color:var(--gold); text-decoration:none; font-weight:bold; }
     .venue-link:hover { text-decoration:underline; }
+    .contact-call, .contact-whatsapp { font-size:18px; transition:all 0.2s ease; }
+    .contact-call:hover, .contact-whatsapp:hover { transform:scale(1.3); }
+    .contact-call.active, .contact-whatsapp.active { color:var(--gold); cursor:pointer; }
 
     @media(max-width:720px) {
       .page { width:100%; margin:0; padding:24px; }
@@ -151,14 +155,49 @@
       <article class="card">
         <h2>Key contacts</h2>
         <table>
-          <tr><td>Venue manager</td><td contenteditable="true" class="editable">Add contact</td></tr>
-          <tr><td>Venue manager phone</td><td contenteditable="true" class="editable">Add phone</td></tr>
-          <tr><td>Decorator</td><td contenteditable="true" class="editable">Add contact</td></tr>
-          <tr><td>Photographer</td><td contenteditable="true" class="editable">Add contact</td></tr>
-          <tr><td>Videographer</td><td contenteditable="true" class="editable">Add contact</td></tr>
-          <tr><td>Videographer phone</td><td contenteditable="true" class="editable">Add phone</td></tr>
+          <thead>
+            <tr><th style="text-align:left;">Contact</th><th style="text-align:left;">Name</th><th style="text-align:left;">Phone</th><th style="text-align:center;">Action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Venue manager</td>
+              <td><span contenteditable="true" class="editable contact-name" data-contact="venue">Add name</span></td>
+              <td><span contenteditable="true" class="editable contact-phone" data-contact="venue">Add phone</span></td>
+              <td style="text-align:center;">
+                <a href="javascript:void(0)" class="contact-call" data-contact="venue" title="Call" style="margin-right:8px; text-decoration:none; color:#999; cursor:not-allowed;">☎</a>
+                <a href="javascript:void(0)" class="contact-whatsapp" data-contact="venue" title="WhatsApp" style="text-decoration:none; color:#999; cursor:not-allowed;">💬</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Decorator</td>
+              <td><span contenteditable="true" class="editable contact-name" data-contact="decorator">Add name</span></td>
+              <td><span contenteditable="true" class="editable contact-phone" data-contact="decorator">Add phone</span></td>
+              <td style="text-align:center;">
+                <a href="javascript:void(0)" class="contact-call" data-contact="decorator" title="Call" style="margin-right:8px; text-decoration:none; color:#999; cursor:not-allowed;">☎</a>
+                <a href="javascript:void(0)" class="contact-whatsapp" data-contact="decorator" title="WhatsApp" style="text-decoration:none; color:#999; cursor:not-allowed;">💬</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Photographer</td>
+              <td><span contenteditable="true" class="editable contact-name" data-contact="photographer">Add name</span></td>
+              <td><span contenteditable="true" class="editable contact-phone" data-contact="photographer">Add phone</span></td>
+              <td style="text-align:center;">
+                <a href="javascript:void(0)" class="contact-call" data-contact="photographer" title="Call" style="margin-right:8px; text-decoration:none; color:#999; cursor:not-allowed;">☎</a>
+                <a href="javascript:void(0)" class="contact-whatsapp" data-contact="photographer" title="WhatsApp" style="text-decoration:none; color:#999; cursor:not-allowed;">💬</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Videographer</td>
+              <td><span contenteditable="true" class="editable contact-name" data-contact="videographer">Add name</span></td>
+              <td><span contenteditable="true" class="editable contact-phone" data-contact="videographer">Add phone</span></td>
+              <td style="text-align:center;">
+                <a href="javascript:void(0)" class="contact-call" data-contact="videographer" title="Call" style="margin-right:8px; text-decoration:none; color:#999; cursor:not-allowed;">☎</a>
+                <a href="javascript:void(0)" class="contact-whatsapp" data-contact="videographer" title="WhatsApp" style="text-decoration:none; color:#999; cursor:not-allowed;">💬</a>
+              </td>
+            </tr>
+          </tbody>
         </table>
-        <p class="hint">Click underlined fields to type.</p>
+        <p class="hint">Click underlined fields to type name and phone number. Call and WhatsApp options appear when phone is added. Data syncs to Supabase automatically.</p>
       </article>
 
       <article class="card full timeline-card">
@@ -264,6 +303,12 @@ Personal traditions or surprises:</div>
   </main>
 
   <script>
+    // Initialize Supabase
+    const SUPABASE_URL = 'https://auyhvsezdxjgonxwbwve.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Q9se_J-MMSkPMxmGZGHRew_DANiB-XQ';
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
     // Initialize checklist from localStorage
     function initChecklist() {
       const checklist = document.getElementById('checklist');
@@ -325,7 +370,150 @@ Personal traditions or surprises:</div>
       });
       
       initChecklist();
+      initContactLinks();
     });
+
+    // Initialize contact links with phone number validation and Supabase
+    function initContactLinks() {
+      const nameFields = document.querySelectorAll('.contact-name');
+      const phoneFields = document.querySelectorAll('.contact-phone');
+      const callLinks = document.querySelectorAll('.contact-call');
+      const whatsappLinks = document.querySelectorAll('.contact-whatsapp');
+
+      // Function to validate and format phone number
+      function isValidPhone(phone) {
+        const cleaned = phone.replace(/\D/g, '');
+        return cleaned.length >= 10;
+      }
+
+      // Function to format phone for display
+      function formatPhone(phone) {
+        return phone.replace(/\D/g, '');
+      }
+
+      // Load data from Supabase
+      async function loadFromSupabase() {
+        try {
+          const { data, error } = await supabase.from('contacts').select('*');
+          
+          if (error) {
+            console.error('Error loading contacts:', error);
+            return;
+          }
+
+          if (data) {
+            data.forEach(contact => {
+              const nameField = document.querySelector(`.contact-name[data-contact="${contact.contact_type}"]`);
+              const phoneField = document.querySelector(`.contact-phone[data-contact="${contact.contact_type}"]`);
+              
+              if (nameField && contact.name !== 'Add name') {
+                nameField.textContent = contact.name;
+              }
+              if (phoneField && contact.phone !== 'Add phone') {
+                phoneField.textContent = contact.phone;
+              }
+            });
+            updateLinks();
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      // Save data to Supabase
+      async function saveContactToSupabase(contact, name, phone) {
+        try {
+          const { error } = await supabase
+            .from('contacts')
+            .update({ name, phone, updated_at: new Date() })
+            .eq('contact_type', contact);
+          
+          if (error) {
+            console.error('Error saving contact:', error);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+
+      // Update link states based on phone number
+      function updateLinks() {
+        phoneFields.forEach(field => {
+          const contact = field.dataset.contact;
+          const phone = field.textContent.trim();
+          const callLink = document.querySelector(`.contact-call[data-contact="${contact}"]`);
+          const whatsappLink = document.querySelector(`.contact-whatsapp[data-contact="${contact}"]`);
+
+          if (isValidPhone(phone)) {
+            const formattedPhone = formatPhone(phone);
+            const countryCode = formattedPhone.startsWith('91') ? formattedPhone : '91' + formattedPhone;
+            
+            // Enable call link
+            callLink.classList.add('active');
+            callLink.style.color = 'var(--gold)';
+            callLink.style.cursor = 'pointer';
+            callLink.onclick = function(e) {
+              e.preventDefault();
+              window.location.href = 'tel:+' + countryCode;
+            };
+
+            // Enable WhatsApp link
+            whatsappLink.classList.add('active');
+            whatsappLink.style.color = 'var(--gold)';
+            whatsappLink.style.cursor = 'pointer';
+            whatsappLink.onclick = function(e) {
+              e.preventDefault();
+              const contactName = document.querySelector(`.contact-name[data-contact="${contact}"]`).textContent.trim();
+              const message = 'Hi ' + contactName + '! I am calling regarding ' + contact.charAt(0).toUpperCase() + contact.slice(1) + ' for Konijeti Gupta 60th Birthday Celebration';
+              const encoded = encodeURIComponent(message);
+              window.location.href = 'https://wa.me/' + countryCode + '?text=' + encoded;
+            };
+          } else {
+            // Disable links
+            callLink.classList.remove('active');
+            callLink.style.color = '#999';
+            callLink.style.cursor = 'not-allowed';
+            callLink.onclick = null;
+
+            whatsappLink.classList.remove('active');
+            whatsappLink.style.color = '#999';
+            whatsappLink.style.cursor = 'not-allowed';
+            whatsappLink.onclick = null;
+          }
+        });
+      }
+
+      // Save name fields when edited
+      nameFields.forEach(field => {
+        field.addEventListener('blur', function() {
+          const contact = this.dataset.contact;
+          const name = this.textContent.trim();
+          const phone = document.querySelector(`.contact-phone[data-contact="${contact}"]`).textContent.trim();
+          
+          if (name && name !== 'Add name') {
+            saveContactToSupabase(contact, name, phone);
+          }
+        });
+      });
+
+      // Save phone fields when edited
+      phoneFields.forEach(field => {
+        field.addEventListener('blur', function() {
+          const contact = this.dataset.contact;
+          const phone = this.textContent.trim();
+          const name = document.querySelector(`.contact-name[data-contact="${contact}"]`).textContent.trim();
+          
+          if (phone && phone !== 'Add phone') {
+            saveContactToSupabase(contact, name, phone);
+          }
+          updateLinks();
+        });
+        field.addEventListener('input', updateLinks);
+      });
+
+      // Load data from Supabase on page load
+      loadFromSupabase();
+    }
   </script>
 </body>
 </html>
