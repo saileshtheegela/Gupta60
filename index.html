@@ -605,7 +605,7 @@ Personal traditions or surprises:</div>
     async function loadPhotos() {
       if (!supabase) return;
       try {
-        const { data, error } = await supabase.from('photos').select('*').order('created_at', { ascending: false });
+        const { data, error } = await supabase.from('Photos').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         const container = document.getElementById('photos-container');
         container.innerHTML = '<div class="photos-grid">';
@@ -650,7 +650,7 @@ Personal traditions or surprises:</div>
       
       // Upload file
       const { data, error } = await supabase.storage
-        .from('photos')
+        .from('Photos')
         .upload(fileName, file, {
           upsert: false
         });
@@ -663,7 +663,7 @@ Personal traditions or surprises:</div>
       
       // Get public URL
       const { data: publicData } = supabase.storage
-        .from('photos')
+        .from('Photos')
         .getPublicUrl(fileName);
       
       const photoUrl = publicData.publicUrl;
@@ -704,7 +704,7 @@ Personal traditions or surprises:</div>
     async function deletePhoto(id) {
       if (!supabase) return;
       try {
-        await supabase.from('photos').delete().eq('id', id);
+        await supabase.from('Photos').delete().eq('id', id);
         loadPhotos();
         console.log('✅ Photo deleted');
       } catch (error) {
