@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Konijeti Gupta | 60th Birthday Dashboard</title>
- <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
   <style>
     :root { --wine:#681f35; --rose:#b8757d; --blush:#faeeee; --gold:#bd8b33; --ink:#2d2527; --paper:#fffdfa; --line:#e8d9d2; }
     * { box-sizing:border-box }
@@ -19,6 +19,7 @@
     .date { text-align:right; font:600 17px Georgia,serif; color:var(--wine); }
     .date small { display:block; font:13px Arial,sans-serif; color:#786e6e; margin-top:4px; }
     .grid { display:grid; grid-template-columns:1.18fr .82fr; gap:22px; margin-top:24px; }
+    .grid-2col { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
     .full { grid-column:1/-1 }
     .card { border:1px solid var(--line); border-radius:10px; padding:20px; background:rgb(255 255 255 / 88%); }
     h2 { font:700 22px Georgia,serif; color:var(--wine); margin-bottom:14px; }
@@ -44,6 +45,20 @@
     .check-add input { flex:1; padding:6px 8px; border:1px solid var(--line); border-radius:4px; font-size:13px; }
     .check-add button { padding:6px 12px; background:var(--gold); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; }
     .check-add button:hover { background:#9d6b1b; }
+    .table-add { margin-top:12px; display:flex; gap:8px; }
+    .table-add input { flex:1; padding:6px 8px; border:1px solid var(--line); border-radius:4px; font-size:13px; }
+    .table-add button { padding:6px 12px; background:var(--gold); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; }
+    .table-add button:hover { background:#9d6b1b; }
+    .delete-btn { background:#d9534f; color:#fff; border:none; padding:2px 6px; border-radius:3px; cursor:pointer; font-size:11px; }
+    .delete-btn:hover { background:#c9302c; }
+    .photos-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:10px; margin-top:12px; }
+    .photo-item { position:relative; border-radius:6px; overflow:hidden; background:#f0e7e2; }
+    .photo-item img { width:100%; height:100px; object-fit:cover; }
+    .photo-delete { position:absolute; top:2px; right:2px; background:#d9534f; color:#fff; border:none; padding:2px 4px; border-radius:2px; cursor:pointer; font-size:10px; }
+    .photo-upload { margin-top:12px; }
+    .photo-upload input { display:none; }
+    .photo-upload-btn { padding:6px 12px; background:var(--gold); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; }
+    .photo-upload-btn:hover { background:#9d6b1b; }
     .two { columns:2; column-gap:28px; }
     .notes { min-height:110px; padding:10px; background:repeating-linear-gradient(#fff,#fff 28px,#eadfd9 29px); line-height:29px; }
     .sheets-container { width:100%; height:500px; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
@@ -60,6 +75,7 @@
     @media(max-width:720px) {
       .page { width:100%; margin:0; padding:24px; }
       .grid { grid-template-columns:1fr; }
+      .grid-2col { grid-template-columns:1fr; }
       header { align-items:start; flex-direction:column; }
       .date { text-align:left; }
       h1 { font-size:34px; }
@@ -71,6 +87,7 @@
     @media(max-width:480px) {
       .page { padding:18px 16px; }
       .grid { grid-template-columns:minmax(0,1fr); gap:16px; margin-top:18px; }
+      .grid-2col { grid-template-columns:1fr; }
       .card { min-width:0; padding:16px; }
       .hero { padding:16px; }
       .hero:after { right:-4px; bottom:-18px; font-size:94px; }
@@ -87,38 +104,6 @@
       th, td { overflow-wrap:anywhere; }
       th { font-size:9px; padding:6px 4px; }
       td { padding:8px 4px; }
-
-      .timeline-card table,
-      .timeline-card tbody,
-      .timeline-card tr,
-      .timeline-card td {
-        display:block;
-        width:100%;
-        min-width:0;
-      }
-
-      .timeline-card table { table-layout:auto; }
-      .timeline-card thead { display:none; }
-      .timeline-card tr { padding:9px 0; border-bottom:1px solid var(--line); }
-      .timeline-card tr:last-child { border-bottom:0; }
-      .timeline-card td { padding:5px 0; border:0; }
-      .timeline-card td:before {
-        content:attr(data-label);
-        display:block;
-        margin-bottom:1px;
-        color:var(--gold);
-        font-size:9px;
-        font-weight:bold;
-        letter-spacing:.55px;
-        text-transform:uppercase;
-      }
-
-      .timeline-card td.day { font-size:14px; }
-      .check li, .notes { overflow-wrap:anywhere; }
-      .notes { font-size:12px; }
-      .check-add { flex-direction:column; }
-      .check-add input { width:100%; }
-      .check-add button { width:100%; }
       .sheets-container { height:300px; }
     }
 
@@ -128,8 +113,10 @@
       .card { break-inside:avoid; }
       .hint { display:none; }
       .check-add { display:none; }
+      .table-add { display:none; }
       .sheets-container { display:none; }
       .sheets-link { display:none; }
+      .photo-upload { display:none; }
     }
   </style>
 </head>
@@ -197,7 +184,7 @@
             </tr>
           </tbody>
         </table>
-        <p class="hint">Click underlined fields to type name and phone number. Call and WhatsApp options appear when phone is added. Data syncs to Supabase automatically.</p>
+        <p class="hint">Click underlined fields to type. Call and WhatsApp appear with valid phone. Data syncs to Supabase.</p>
       </article>
 
       <article class="card full timeline-card">
@@ -211,21 +198,21 @@
               <td data-label="Day" class="day">Fri, 31 Jul</td>
               <td data-label="Function / theme" contenteditable="true" class="editable">Sudharshana Homam and Abhishekam</td>
               <td data-label="Time" contenteditable="true" class="editable">Morning</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
+              <td data-label="Venue / setup"><a href="https://www.google.com/maps/dir//Prashanti+Mansion,+Shyam+Rao+Nagar,+Banjara+Hills,+Hyderabad,+Telangana+500034/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x3bcb9738c15fb3cf:0x26d08817def2ecb1?sa=X&ved=1t:707&ictx=111" target="_blank" class="venue-link">Prashanti Mansion</a></td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
             <tr>
               <td data-label="Day" class="day">Sat, 1 Aug</td>
               <td data-label="Function / theme" contenteditable="true" class="editable">Ayusha Homam and Venkateswara Swamy vratham</td>
               <td data-label="Time" contenteditable="true" class="editable">Morning</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
+              <td data-label="Venue / setup"><a href="https://www.google.com/maps/dir//Prashanti+Mansion,+Shyam+Rao+Nagar,+Banjara+Hills,+Hyderabad,+Telangana+500034/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x3bcb9738c15fb3cf:0x26d08817def2ecb1?sa=X&ved=1t:707&ictx=111" target="_blank" class="venue-link">Prashanti Mansion</a></td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
             <tr>
               <td data-label="Day" class="day">Sun, 2 Aug</td>
               <td data-label="Function / theme" contenteditable="true" class="editable">Satyanarayana Swamy vratham</td>
               <td data-label="Time" contenteditable="true" class="editable">Morning</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
+              <td data-label="Venue / setup"><a href="https://www.google.com/maps/dir//Prashanti+Mansion,+Shyam+Rao+Nagar,+Banjara+Hills,+Hyderabad,+Telangana+500034/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0x3bcb9738c15fb3cf:0x26d08817def2ecb1?sa=X&ved=1t:707&ictx=111" target="_blank" class="venue-link">Prashanti Mansion</a></td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
             <tr>
@@ -241,47 +228,42 @@
 
       <article class="card">
         <h2>Priority checklist</h2>
-        <ul class="check" id="checklist">
-          <li><input type="checkbox" id="check-1" data-id="1"><label for="check-1">Confirm all three venues</label></li>
-          <li><input type="checkbox" id="check-2" data-id="2"><label for="check-2">Prepare guest list & invitations</label></li>
-          <li><input type="checkbox" id="check-3" data-id="3"><label for="check-3">Book catering / menu tasting</label></li>
-          <li><input type="checkbox" id="check-4" data-id="4"><label for="check-4">Book décor and flowers</label></li>
-          <li><input type="checkbox" id="check-5" data-id="5"><label for="check-5">Order 60th birthday cake</label></li>
-          <li><input type="checkbox" id="check-6" data-id="6"><label for="check-6">Arrange music / entertainment</label></li>
-          <li><input type="checkbox" id="check-7" data-id="7"><label for="check-7">Book photographer & videographer</label></li>
-          <li><input type="checkbox" id="check-8" data-id="8"><label for="check-8">Plan return gifts</label></li>
-          <li><input type="checkbox" id="check-9" data-id="9"><label for="check-9">Arrange transport & parking</label></li>
-          <li><input type="checkbox" id="check-10" data-id="10"><label for="check-10">Prepare speeches / video montage</label></li>
-        </ul>
+        <div id="checklist-container"></div>
         <div class="check-add">
           <input type="text" id="newCheckItem" placeholder="Add a new task..." />
-          <button onclick="addCheckItem()">+ Add</button>
+          <button onclick="addNewCheckItem()">+ Add</button>
         </div>
       </article>
 
       <article class="card">
         <h2>Budget tracker</h2>
-        <table>
-          <thead><tr><th>Category</th><th>Budget</th><th>Actual</th></tr></thead>
-          <tbody>
-            <tr><td>Venue</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr>
-            <tr><td>Food & cake</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr>
-            <tr><td>Décor & flowers</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr>
-            <tr><td>Photography & gifts</td><td contenteditable="true" class="editable">₹ —</td><td contenteditable="true" class="editable">₹ —</td></tr>
-          </tbody>
+        <table id="budget-table">
+          <thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Action</th></tr></thead>
+          <tbody id="budget-body"></tbody>
         </table>
+        <div class="table-add">
+          <input type="text" id="newBudgetCategory" placeholder="Category..." />
+          <input type="text" id="newBudgetAmount" placeholder="Budget amount..." />
+          <button onclick="addNewBudgetItem()">+ Add</button>
+        </div>
       </article>
 
       <article class="card">
         <h2>Day-of essentials</h2>
-        <ul class="check">
-          <li><input type="checkbox" id="essential-1"><label for="essential-1">Final vendor confirmation calls</label></li>
-          <li><input type="checkbox" id="essential-2"><label for="essential-2">Printed run sheet and contact list</label></li>
-          <li><input type="checkbox" id="essential-3"><label for="essential-3">Cash / digital payment plan</label></li>
-          <li><input type="checkbox" id="essential-4"><label for="essential-4">Birthday cake, candles & knife</label></li>
-          <li><input type="checkbox" id="essential-5"><label for="essential-5">Welcome signage and guest book</label></li>
-          <li><input type="checkbox" id="essential-6"><label for="essential-6">Emergency kit / medicines / chargers</label></li>
-        </ul>
+        <div id="essentials-container"></div>
+        <div class="check-add">
+          <input type="text" id="newEssentialItem" placeholder="Add an essential..." />
+          <button onclick="addNewEssentialItem()">+ Add</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Photos</h2>
+        <div id="photos-container"></div>
+        <div class="photo-upload">
+          <input type="file" id="photoInput" accept="image/*" multiple onchange="uploadPhotos()" />
+          <button class="photo-upload-btn" onclick="document.getElementById('photoInput').click()">📸 Upload Photos</button>
+        </div>
       </article>
 
       <article class="card full">
@@ -299,7 +281,7 @@ Personal traditions or surprises:</div>
       </article>
     </section>
 
-    <footer>Konijeti Gupta's 60th birthday • Hyderabad • 31 July–2 August • Editable planner — open in a browser and print when ready.</footer>
+    <footer>Konijeti Gupta's 60th birthday • Hyderabad • 31 July–2 August • Editable planner — all changes saved automatically.</footer>
   </main>
 
   <script>
@@ -318,83 +300,26 @@ Personal traditions or surprises:</div>
       }
     }
 
-    function initChecklist() {
-      const checklist = document.getElementById('checklist');
-      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
-      
-      checkboxes.forEach(checkbox => {
-        const id = checkbox.id;
-        const saved = localStorage.getItem('check-' + id);
-        if (saved === 'true') {
-          checkbox.checked = true;
-          checkbox.parentElement.classList.add('completed');
-        }
-        
-        checkbox.addEventListener('change', function() {
-          localStorage.setItem('check-' + this.id, this.checked);
-          if (this.checked) {
-            this.parentElement.classList.add('completed');
-          } else {
-            this.parentElement.classList.remove('completed');
-          }
-        });
-      });
-    }
-
-    function addCheckItem() {
-      const input = document.getElementById('newCheckItem');
-      const text = input.value.trim();
-      
-      if (text === '') return;
-      
-      const checklist = document.getElementById('checklist');
-      const newId = 'check-' + Date.now();
-      
-      const li = document.createElement('li');
-      li.innerHTML = `<input type="checkbox" id="${newId}" data-id="${newId}"><label for="${newId}">${text}</label>`;
-      
-      const checkbox = li.querySelector('input[type="checkbox"]');
-      checkbox.addEventListener('change', function() {
-        localStorage.setItem(this.id, this.checked);
-        if (this.checked) {
-          this.parentElement.classList.add('completed');
-        } else {
-          this.parentElement.classList.remove('completed');
-        }
-      });
-      
-      checklist.appendChild(li);
-      input.value = '';
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
       initSupabase();
-      
-      const input = document.getElementById('newCheckItem');
-      input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-          addCheckItem();
-        }
-      });
-      
-      initChecklist();
-      setTimeout(() => initContactLinks(), 1000);
+      setTimeout(() => {
+        initContactLinks();
+        loadChecklistItems();
+        loadBudgetItems();
+        loadEssentialsItems();
+        loadPhotos();
+      }, 1000);
     });
 
+    // CONTACTS
     function initContactLinks() {
-      if (!supabase) {
-        console.error('❌ Supabase not ready yet');
-        return;
-      }
+      if (!supabase) return;
 
       const nameFields = document.querySelectorAll('.contact-name');
       const phoneFields = document.querySelectorAll('.contact-phone');
-      const callLinks = document.querySelectorAll('.contact-call');
-      const whatsappLinks = document.querySelectorAll('.contact-whatsapp');
 
       function isValidPhone(phone) {
-        const cleaned = phone.replace(/\D/g, '');
-        return cleaned.length >= 10;
+        return phone.replace(/\D/g, '').length >= 10;
       }
 
       function formatPhone(phone) {
@@ -404,25 +329,17 @@ Personal traditions or surprises:</div>
       async function loadFromSupabase() {
         try {
           const { data, error } = await supabase.from('contacts').select('*');
-          
           if (error) {
             console.error('❌ Error loading contacts:', error);
             return;
           }
-
-          console.log('✅ Contacts loaded:', data);
-
           if (data) {
             data.forEach(contact => {
               const nameField = document.querySelector(`.contact-name[data-contact="${contact.contact_type}"]`);
               const phoneField = document.querySelector(`.contact-phone[data-contact="${contact.contact_type}"]`);
               
-              if (nameField && contact.name !== 'Add name') {
-                nameField.textContent = contact.name;
-              }
-              if (phoneField && contact.phone !== 'Add phone') {
-                phoneField.textContent = contact.phone;
-              }
+              if (nameField && contact.name !== 'Add name') nameField.textContent = contact.name;
+              if (phoneField && contact.phone !== 'Add phone') phoneField.textContent = contact.phone;
             });
             updateLinks();
           }
@@ -433,18 +350,10 @@ Personal traditions or surprises:</div>
 
       async function saveContactToSupabase(contact, name, phone) {
         try {
-          const { error } = await supabase
-            .from('contacts')
-            .update({ name, phone, updated_at: new Date() })
-            .eq('contact_type', contact);
-          
-          if (error) {
-            console.error('❌ Error saving contact:', error);
-          } else {
-            console.log('✅ Contact saved:', contact, name, phone);
-          }
+          await supabase.from('contacts').update({ name, phone, updated_at: new Date() }).eq('contact_type', contact);
+          console.log('✅ Contact saved:', contact);
         } catch (error) {
-          console.error('❌ Error:', error);
+          console.error('❌ Error saving contact:', error);
         }
       }
 
@@ -462,20 +371,15 @@ Personal traditions or surprises:</div>
             callLink.classList.add('active');
             callLink.style.color = 'var(--gold)';
             callLink.style.cursor = 'pointer';
-            callLink.onclick = function(e) {
-              e.preventDefault();
-              window.location.href = 'tel:+' + countryCode;
-            };
+            callLink.onclick = () => window.location.href = 'tel:+' + countryCode;
 
             whatsappLink.classList.add('active');
             whatsappLink.style.color = 'var(--gold)';
             whatsappLink.style.cursor = 'pointer';
-            whatsappLink.onclick = function(e) {
-              e.preventDefault();
+            whatsappLink.onclick = () => {
               const contactName = document.querySelector(`.contact-name[data-contact="${contact}"]`).textContent.trim();
               const message = 'Hi ' + contactName + '! I am calling regarding ' + contact.charAt(0).toUpperCase() + contact.slice(1) + ' for Konijeti Gupta 60th Birthday Celebration';
-              const encoded = encodeURIComponent(message);
-              window.location.href = 'https://wa.me/' + countryCode + '?text=' + encoded;
+              window.location.href = 'https://wa.me/' + countryCode + '?text=' + encodeURIComponent(message);
             };
           } else {
             callLink.classList.remove('active');
@@ -496,10 +400,7 @@ Personal traditions or surprises:</div>
           const contact = this.dataset.contact;
           const name = this.textContent.trim();
           const phone = document.querySelector(`.contact-phone[data-contact="${contact}"]`).textContent.trim();
-          
-          if (name && name !== 'Add name') {
-            saveContactToSupabase(contact, name, phone);
-          }
+          if (name && name !== 'Add name') saveContactToSupabase(contact, name, phone);
         });
       });
 
@@ -508,16 +409,256 @@ Personal traditions or surprises:</div>
           const contact = this.dataset.contact;
           const phone = this.textContent.trim();
           const name = document.querySelector(`.contact-name[data-contact="${contact}"]`).textContent.trim();
-          
-          if (phone && phone !== 'Add phone') {
-            saveContactToSupabase(contact, name, phone);
-          }
+          if (phone && phone !== 'Add phone') saveContactToSupabase(contact, name, phone);
           updateLinks();
         });
         field.addEventListener('input', updateLinks);
       });
 
       loadFromSupabase();
+    }
+
+    // CHECKLIST
+    async function loadChecklistItems() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from('checklist_items').select('*').order('created_at', { ascending: true });
+        if (error) {
+          console.error('❌ Error loading checklist:', error);
+          return;
+        }
+        const container = document.getElementById('checklist-container');
+        container.innerHTML = '';
+        data.forEach(item => {
+          const li = document.createElement('div');
+          li.className = 'check';
+          li.innerHTML = `
+            <div style="display:flex; gap:8px; padding:7px 0; border-bottom:1px solid #f0e7e2; align-items:center;">
+              <input type="checkbox" class="checkbox-item" data-id="${item.id}" ${item.completed ? 'checked' : ''} onchange="updateChecklistItem('${item.id}', this.checked)">
+              <label style="flex:1; cursor:pointer; margin:0;">${item.item_text}</label>
+              <button class="delete-btn" onclick="deleteChecklistItem('${item.id}')">Delete</button>
+            </div>
+          `;
+          container.appendChild(li);
+        });
+        console.log('✅ Checklist loaded');
+      } catch (error) {
+        console.error('❌ Error:', error);
+      }
+    }
+
+    async function addNewCheckItem() {
+      const input = document.getElementById('newCheckItem');
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        const { error } = await supabase.from('checklist_items').insert([{ item_text: text, completed: false }]);
+        if (error) throw error;
+        input.value = '';
+        loadChecklistItems();
+        console.log('✅ Checklist item added');
+      } catch (error) {
+        console.error('❌ Error adding item:', error);
+      }
+    }
+
+    async function updateChecklistItem(id, completed) {
+      try {
+        await supabase.from('checklist_items').update({ completed }).eq('id', id);
+        console.log('✅ Checklist item updated');
+      } catch (error) {
+        console.error('❌ Error updating item:', error);
+      }
+    }
+
+    async function deleteChecklistItem(id) {
+      try {
+        await supabase.from('checklist_items').delete().eq('id', id);
+        loadChecklistItems();
+        console.log('✅ Checklist item deleted');
+      } catch (error) {
+        console.error('❌ Error deleting item:', error);
+      }
+    }
+
+    // BUDGET
+    async function loadBudgetItems() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from('budget_items').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        const tbody = document.getElementById('budget-body');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td contenteditable="true" class="editable" onblur="updateBudgetItem('${item.id}', 'category', this.textContent)">${item.category}</td>
+            <td contenteditable="true" class="editable" onblur="updateBudgetItem('${item.id}', 'budget', this.textContent)">${item.budget}</td>
+            <td contenteditable="true" class="editable" onblur="updateBudgetItem('${item.id}', 'actual', this.textContent)">${item.actual}</td>
+            <td><button class="delete-btn" onclick="deleteBudgetItem('${item.id}')">Delete</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        console.log('✅ Budget items loaded');
+      } catch (error) {
+        console.error('❌ Error loading budget:', error);
+      }
+    }
+
+    async function addNewBudgetItem() {
+      const category = document.getElementById('newBudgetCategory').value.trim();
+      const budget = document.getElementById('newBudgetAmount').value.trim() || '₹ —';
+      if (!category) return;
+
+      try {
+        await supabase.from('budget_items').insert([{ category, budget, actual: '₹ —' }]);
+        document.getElementById('newBudgetCategory').value = '';
+        document.getElementById('newBudgetAmount').value = '';
+        loadBudgetItems();
+        console.log('✅ Budget item added');
+      } catch (error) {
+        console.error('❌ Error adding budget item:', error);
+      }
+    }
+
+    async function updateBudgetItem(id, field, value) {
+      try {
+        await supabase.from('budget_items').update({ [field]: value, updated_at: new Date() }).eq('id', id);
+        console.log('✅ Budget item updated');
+      } catch (error) {
+        console.error('❌ Error updating budget item:', error);
+      }
+    }
+
+    async function deleteBudgetItem(id) {
+      try {
+        await supabase.from('budget_items').delete().eq('id', id);
+        loadBudgetItems();
+        console.log('✅ Budget item deleted');
+      } catch (error) {
+        console.error('❌ Error deleting budget item:', error);
+      }
+    }
+
+    // ESSENTIALS
+    async function loadEssentialsItems() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from('essentials_items').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        const container = document.getElementById('essentials-container');
+        container.innerHTML = '';
+        data.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'check';
+          div.innerHTML = `
+            <div style="display:flex; gap:8px; padding:7px 0; border-bottom:1px solid #f0e7e2; align-items:center;">
+              <input type="checkbox" class="checkbox-item" data-id="${item.id}" ${item.completed ? 'checked' : ''} onchange="updateEssentialItem('${item.id}', this.checked)">
+              <label style="flex:1; cursor:pointer; margin:0;">${item.item_text}</label>
+              <button class="delete-btn" onclick="deleteEssentialItem('${item.id}')">Delete</button>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+        console.log('✅ Essentials loaded');
+      } catch (error) {
+        console.error('❌ Error loading essentials:', error);
+      }
+    }
+
+    async function addNewEssentialItem() {
+      const input = document.getElementById('newEssentialItem');
+      const text = input.value.trim();
+      if (!text) return;
+
+      try {
+        await supabase.from('essentials_items').insert([{ item_text: text, completed: false }]);
+        input.value = '';
+        loadEssentialsItems();
+        console.log('✅ Essential item added');
+      } catch (error) {
+        console.error('❌ Error adding essential:', error);
+      }
+    }
+
+    async function updateEssentialItem(id, completed) {
+      try {
+        await supabase.from('essentials_items').update({ completed }).eq('id', id);
+        console.log('✅ Essential item updated');
+      } catch (error) {
+        console.error('❌ Error updating essential:', error);
+      }
+    }
+
+    async function deleteEssentialItem(id) {
+      try {
+        await supabase.from('essentials_items').delete().eq('id', id);
+        loadEssentialsItems();
+        console.log('✅ Essential item deleted');
+      } catch (error) {
+        console.error('❌ Error deleting essential:', error);
+      }
+    }
+
+    // PHOTOS
+    async function loadPhotos() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase.from('photos').select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        const container = document.getElementById('photos-container');
+        container.innerHTML = '<div class="photos-grid">';
+        data.forEach(photo => {
+          if (photo.photo_url) {
+            container.innerHTML += `
+              <div class="photo-item">
+                <img src="${photo.photo_url}" alt="Photo">
+                <button class="photo-delete" onclick="deletePhoto('${photo.id}')">×</button>
+              </div>
+            `;
+          }
+        });
+        container.innerHTML += '</div>';
+        console.log('✅ Photos loaded');
+      } catch (error) {
+        console.error('❌ Error loading photos:', error);
+      }
+    }
+
+    async function uploadPhotos() {
+      if (!supabase) return;
+      const input = document.getElementById('photoInput');
+      const files = input.files;
+      if (!files.length) return;
+
+      for (let file of files) {
+        try {
+          const fileName = `${Date.now()}_${file.name}`;
+          const { data, error } = await supabase.storage.from('photos').upload(fileName, file);
+          if (error) throw error;
+
+          const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(fileName);
+          await supabase.from('photos').insert([{ event_id: 'celebration', photo_url: publicUrl, file_name: fileName }]);
+          console.log('✅ Photo uploaded:', fileName);
+        } catch (error) {
+          console.error('❌ Error uploading photo:', error);
+        }
+      }
+
+      input.value = '';
+      loadPhotos();
+    }
+
+    async function deletePhoto(id) {
+      if (!supabase) return;
+      try {
+        await supabase.from('photos').delete().eq('id', id);
+        loadPhotos();
+        console.log('✅ Photo deleted');
+      } catch (error) {
+        console.error('❌ Error deleting photo:', error);
+      }
     }
   </script>
 </body>
