@@ -35,12 +35,23 @@
     .day { color:var(--gold); font-weight:bold; white-space:nowrap; }
     .badge { display:inline-block; padding:2px 7px; border-radius:12px; background:var(--blush); color:var(--wine); font-size:11px; }
     .check { list-style:none; padding:0; margin:0; }
-    .check li { padding:7px 0; border-bottom:1px solid #f0e7e2; }
-    .check li:before { content:'□'; color:var(--gold); font-size:18px; vertical-align:-1px; margin-right:8px; }
+    .check li { padding:7px 0; border-bottom:1px solid #f0e7e2; display:flex; align-items:center; gap:8px; }
+    .check li input[type="checkbox"] { cursor:pointer; accent-color:var(--gold); }
+    .check li.completed label { text-decoration:line-through; color:#999; }
+    .check li label { cursor:pointer; flex:1; margin:0; }
+    .check-add { margin-top:12px; display:flex; gap:8px; }
+    .check-add input { flex:1; padding:6px 8px; border:1px solid var(--line); border-radius:4px; font-size:13px; }
+    .check-add button { padding:6px 12px; background:var(--gold); color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold; }
+    .check-add button:hover { background:#9d6b1b; }
     .two { columns:2; column-gap:28px; }
     .notes { min-height:110px; padding:10px; background:repeating-linear-gradient(#fff,#fff 28px,#eadfd9 29px); line-height:29px; }
+    .sheets-container { width:100%; height:500px; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+    .sheets-link { display:inline-block; margin-top:10px; padding:8px 12px; background:var(--gold); color:#fff; text-decoration:none; border-radius:4px; font-size:12px; font-weight:bold; }
+    .sheets-link:hover { background:#9d6b1b; }
     footer { margin-top:25px; color:#897d7d; font-size:11px; text-align:center; }
     .hint { font-size:11px; color:#8b7e7c; margin-top:8px; }
+    .venue-link { color:var(--gold); text-decoration:none; font-weight:bold; }
+    .venue-link:hover { text-decoration:underline; }
 
     @media(max-width:720px) {
       .page { width:100%; margin:0; padding:24px; }
@@ -49,6 +60,8 @@
       .date { text-align:left; }
       h1 { font-size:34px; }
       .two { columns:1; }
+      .stats { grid-template-columns:1fr; }
+      .sheets-container { height:400px; }
     }
 
     @media(max-width:480px) {
@@ -57,7 +70,7 @@
       .card { min-width:0; padding:16px; }
       .hero { padding:16px; }
       .hero:after { right:-4px; bottom:-18px; font-size:94px; }
-      .stats { grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; margin-top:14px; }
+      .stats { grid-template-columns:1fr; gap:7px; margin-top:14px; }
       .stat { padding:9px 6px; border-left-width:3px; }
       .stat b { font-size:18px; line-height:1.1; }
       .stat span { display:block; font-size:9px; line-height:1.25; letter-spacing:.35px; overflow-wrap:anywhere; }
@@ -99,6 +112,10 @@
       .timeline-card td.day { font-size:14px; }
       .check li, .notes { overflow-wrap:anywhere; }
       .notes { font-size:12px; }
+      .check-add { flex-direction:column; }
+      .check-add input { width:100%; }
+      .check-add button { width:100%; }
+      .sheets-container { height:300px; }
     }
 
     @media print {
@@ -106,6 +123,9 @@
       .page { width:100%; margin:0; padding:26px; box-shadow:none; }
       .card { break-inside:avoid; }
       .hint { display:none; }
+      .check-add { display:none; }
+      .sheets-container { display:none; }
+      .sheets-link { display:none; }
     }
   </style>
 </head>
@@ -114,7 +134,7 @@
     <header>
       <div>
         <p class="eyebrow">Celebration planning dashboard</p>
-        <h1>Konijeti Gupta’s 60th</h1>
+        <h1>Konijeti Gupta's 60th</h1>
       </div>
       <p class="date">31 July – 2 August <small>Hyderabad, Telangana</small></p>
     </header>
@@ -124,8 +144,6 @@
         <h2>Three days of celebration</h2>
         <p contenteditable="true" class="editable">A joyful milestone celebration with family, friends, food, music and memorable moments.</p>
         <div class="stats">
-          <div class="stat"><b contenteditable="true">—</b><span>Guests expected</span></div>
-          <div class="stat"><b contenteditable="true">—</b><span>Budget (₹)</span></div>
           <div class="stat"><b contenteditable="true">3</b><span>Celebration days</span></div>
         </div>
       </article>
@@ -133,10 +151,12 @@
       <article class="card">
         <h2>Key contacts</h2>
         <table>
-          <tr><td>Host / family lead</td><td contenteditable="true" class="editable">Add name & phone</td></tr>
           <tr><td>Venue manager</td><td contenteditable="true" class="editable">Add contact</td></tr>
+          <tr><td>Venue manager phone</td><td contenteditable="true" class="editable">Add phone</td></tr>
           <tr><td>Decorator</td><td contenteditable="true" class="editable">Add contact</td></tr>
           <tr><td>Photographer</td><td contenteditable="true" class="editable">Add contact</td></tr>
+          <tr><td>Videographer</td><td contenteditable="true" class="editable">Add contact</td></tr>
+          <tr><td>Videographer phone</td><td contenteditable="true" class="editable">Add phone</td></tr>
         </table>
         <p class="hint">Click underlined fields to type.</p>
       </article>
@@ -145,31 +165,35 @@
         <h2>Celebration timeline</h2>
         <table>
           <thead>
-            <tr><th>Day</th><th>Function / theme</th><th>Time</th><th>Venue / setup</th><th>Owner</th><th>Status</th></tr>
+            <tr><th>Day</th><th>Function / theme</th><th>Time</th><th>Venue / setup</th><th>Status</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td data-label="Day" class="day">Thu, 31 Jul</td>
-              <td data-label="Function / theme" contenteditable="true" class="editable">Welcome dinner / family evening</td>
-              <td data-label="Time" contenteditable="true" class="editable">—</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Hyderabad — confirm venue</td>
-              <td data-label="Owner" contenteditable="true" class="editable">—</td>
+              <td data-label="Day" class="day">Fri, 31 Jul</td>
+              <td data-label="Function / theme" contenteditable="true" class="editable">Sudharshana Homam and Abhishekam</td>
+              <td data-label="Time" contenteditable="true" class="editable">Morning</td>
+              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
             <tr>
-              <td data-label="Day" class="day">Fri, 1 Aug</td>
-              <td data-label="Function / theme" contenteditable="true" class="editable">Main 60th birthday celebration</td>
-              <td data-label="Time" contenteditable="true" class="editable">—</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Hyderabad — confirm venue</td>
-              <td data-label="Owner" contenteditable="true" class="editable">—</td>
+              <td data-label="Day" class="day">Sat, 1 Aug</td>
+              <td data-label="Function / theme" contenteditable="true" class="editable">Ayusha Homam and Venkateswara Swamy vratham</td>
+              <td data-label="Time" contenteditable="true" class="editable">Morning</td>
+              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
             <tr>
-              <td data-label="Day" class="day">Sat, 2 Aug</td>
-              <td data-label="Function / theme" contenteditable="true" class="editable">Brunch / thanksgiving gathering</td>
-              <td data-label="Time" contenteditable="true" class="editable">—</td>
-              <td data-label="Venue / setup" contenteditable="true" class="editable">Hyderabad — confirm venue</td>
-              <td data-label="Owner" contenteditable="true" class="editable">—</td>
+              <td data-label="Day" class="day">Sun, 2 Aug</td>
+              <td data-label="Function / theme" contenteditable="true" class="editable">Satyanarayana Swamy vratham</td>
+              <td data-label="Time" contenteditable="true" class="editable">Morning</td>
+              <td data-label="Venue / setup" contenteditable="true" class="editable">Prashanti mansion</td>
+              <td data-label="Status"><span class="badge">To plan</span></td>
+            </tr>
+            <tr>
+              <td data-label="Day" class="day">Sun, 2 Aug</td>
+              <td data-label="Function / theme" contenteditable="true" class="editable">Reception</td>
+              <td data-label="Time" contenteditable="true" class="editable">Evening</td>
+              <td data-label="Venue / setup"><a href="https://www.google.com/maps/search/the+leela+banjara+hills+hyderabad" target="_blank" class="venue-link">The Leela</a></td>
               <td data-label="Status"><span class="badge">To plan</span></td>
             </tr>
           </tbody>
@@ -178,18 +202,22 @@
 
       <article class="card">
         <h2>Priority checklist</h2>
-        <ul class="check two">
-          <li>Confirm all three venues</li>
-          <li>Prepare guest list & invitations</li>
-          <li>Book catering / menu tasting</li>
-          <li>Book décor and flowers</li>
-          <li>Order 60th birthday cake</li>
-          <li>Arrange music / entertainment</li>
-          <li>Book photographer & videographer</li>
-          <li>Plan return gifts</li>
-          <li>Arrange transport & parking</li>
-          <li>Prepare speeches / video montage</li>
+        <ul class="check" id="checklist">
+          <li><input type="checkbox" id="check-1" data-id="1"><label for="check-1">Confirm all three venues</label></li>
+          <li><input type="checkbox" id="check-2" data-id="2"><label for="check-2">Prepare guest list & invitations</label></li>
+          <li><input type="checkbox" id="check-3" data-id="3"><label for="check-3">Book catering / menu tasting</label></li>
+          <li><input type="checkbox" id="check-4" data-id="4"><label for="check-4">Book décor and flowers</label></li>
+          <li><input type="checkbox" id="check-5" data-id="5"><label for="check-5">Order 60th birthday cake</label></li>
+          <li><input type="checkbox" id="check-6" data-id="6"><label for="check-6">Arrange music / entertainment</label></li>
+          <li><input type="checkbox" id="check-7" data-id="7"><label for="check-7">Book photographer & videographer</label></li>
+          <li><input type="checkbox" id="check-8" data-id="8"><label for="check-8">Plan return gifts</label></li>
+          <li><input type="checkbox" id="check-9" data-id="9"><label for="check-9">Arrange transport & parking</label></li>
+          <li><input type="checkbox" id="check-10" data-id="10"><label for="check-10">Prepare speeches / video montage</label></li>
         </ul>
+        <div class="check-add">
+          <input type="text" id="newCheckItem" placeholder="Add a new task..." />
+          <button onclick="addCheckItem()">+ Add</button>
+        </div>
       </article>
 
       <article class="card">
@@ -206,23 +234,21 @@
       </article>
 
       <article class="card">
-        <h2>Guest & hospitality notes</h2>
-        <div contenteditable="true" class="notes">VIP / elder guests:
-Outstation arrivals:
-Dietary requirements:
-Transport or accommodation:</div>
-      </article>
-
-      <article class="card">
         <h2>Day-of essentials</h2>
         <ul class="check">
-          <li>Final vendor confirmation calls</li>
-          <li>Printed run sheet and contact list</li>
-          <li>Cash / digital payment plan</li>
-          <li>Birthday cake, candles & knife</li>
-          <li>Welcome signage and guest book</li>
-          <li>Emergency kit / medicines / chargers</li>
+          <li><input type="checkbox" id="essential-1"><label for="essential-1">Final vendor confirmation calls</label></li>
+          <li><input type="checkbox" id="essential-2"><label for="essential-2">Printed run sheet and contact list</label></li>
+          <li><input type="checkbox" id="essential-3"><label for="essential-3">Cash / digital payment plan</label></li>
+          <li><input type="checkbox" id="essential-4"><label for="essential-4">Birthday cake, candles & knife</label></li>
+          <li><input type="checkbox" id="essential-5"><label for="essential-5">Welcome signage and guest book</label></li>
+          <li><input type="checkbox" id="essential-6"><label for="essential-6">Emergency kit / medicines / chargers</label></li>
         </ul>
+      </article>
+
+      <article class="card full">
+        <h2>Guest List</h2>
+        <p class="hint">View and manage guest list in the embedded Google Sheet below. You can also <a href="https://docs.google.com/spreadsheets/d/1doWu4qPAmqh0vFhrMEAyr8kdhDn0bK1OqTIlUft3VAc/edit?usp=sharing" target="_blank" class="sheets-link">open in full view</a></p>
+        <iframe class="sheets-container" src="https://docs.google.com/spreadsheets/d/1doWu4qPAmqh0vFhrMEAyr8kdhDn0bK1OqTIlUft3VAc/preview" frameborder="0" allowfullscreen></iframe>
       </article>
 
       <article class="card full">
@@ -234,7 +260,72 @@ Personal traditions or surprises:</div>
       </article>
     </section>
 
-    <footer>Konijeti Gupta’s 60th birthday • Hyderabad • 31 July–2 August • Editable planner — open in a browser and print when ready.</footer>
+    <footer>Konijeti Gupta's 60th birthday • Hyderabad • 31 July–2 August • Editable planner — open in a browser and print when ready.</footer>
   </main>
+
+  <script>
+    // Initialize checklist from localStorage
+    function initChecklist() {
+      const checklist = document.getElementById('checklist');
+      const checkboxes = checklist.querySelectorAll('input[type="checkbox"]');
+      
+      checkboxes.forEach(checkbox => {
+        const id = checkbox.id;
+        const saved = localStorage.getItem('check-' + id);
+        if (saved === 'true') {
+          checkbox.checked = true;
+          checkbox.parentElement.classList.add('completed');
+        }
+        
+        checkbox.addEventListener('change', function() {
+          localStorage.setItem('check-' + this.id, this.checked);
+          if (this.checked) {
+            this.parentElement.classList.add('completed');
+          } else {
+            this.parentElement.classList.remove('completed');
+          }
+        });
+      });
+    }
+
+    // Add new checklist item
+    function addCheckItem() {
+      const input = document.getElementById('newCheckItem');
+      const text = input.value.trim();
+      
+      if (text === '') return;
+      
+      const checklist = document.getElementById('checklist');
+      const newId = 'check-' + Date.now();
+      
+      const li = document.createElement('li');
+      li.innerHTML = `<input type="checkbox" id="${newId}" data-id="${newId}"><label for="${newId}">${text}</label>`;
+      
+      const checkbox = li.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener('change', function() {
+        localStorage.setItem(this.id, this.checked);
+        if (this.checked) {
+          this.parentElement.classList.add('completed');
+        } else {
+          this.parentElement.classList.remove('completed');
+        }
+      });
+      
+      checklist.appendChild(li);
+      input.value = '';
+    }
+
+    // Handle Enter key in input
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('newCheckItem');
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          addCheckItem();
+        }
+      });
+      
+      initChecklist();
+    });
+  </script>
 </body>
 </html>
