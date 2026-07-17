@@ -671,7 +671,7 @@ Personal traditions or surprises:</div>
       
       // Save to database
       const { data: insertData, error: insertError } = await supabase
-        .from('photos')
+        .from('Photos')
         .insert([{
           event_id: 'celebration',
           photo_url: photoUrl,
